@@ -13,6 +13,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+var tokenMap map[string]int
+
+func init() {
+	tokenMap = make(map[string]int)
+}
+
 // ------------------------------------------------------------------------------
 func token(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.H("/token  -------------------------------------------------")
@@ -55,6 +61,7 @@ func token(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	token := util.GenToken()
 	log.I("Generate token: ", token)
+	tokenMap[token] = ak
 	writeObj(w, http.StatusOK, token)
 }
 
@@ -77,7 +84,20 @@ func validate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	log.I("Receive token: ", token)
 
-	result := checkToken(appKey, token)
+	appName := r.Header.Get("appName")
+	if appName == "" {
+		log.E("appName missed")
+		writeObj(w, http.StatusBadRequest, false)
+		return
+	}
+	log.I("Receive appName: ", appName)
+
+	key, e := strconv.Atoi(appKey)
+	if e != nil {
+		log.E("appKey is not number: ", appKey)
+		writeObj(w, http.StatusBadRequest, "")
+	}
+	result := checkToken(key, token, appName)
 	log.I("Check result: ", result)
 	writeObj(w, http.StatusOK, result)
 }
@@ -94,6 +114,12 @@ func writeObj(w http.ResponseWriter, status int, obj interface{}) {
 	fmt.Fprintf(w, *(*string)(unsafe.Pointer(&bytes)))
 }
 
-func checkToken(appKey, token string) bool {
+func checkToken(appKey int, token, appName string) bool {
+	key := tokenMap[token]
+	if key == 0 {
+		return false
+	}
+	// TODO
+	// doa.GetAppName(appKey)
 	return true
 }
