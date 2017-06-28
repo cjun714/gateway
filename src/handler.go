@@ -24,38 +24,38 @@ func token(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.H("/token  -------------------------------------------------")
 	r.ParseForm()
 
-	appKey := r.Form.Get("appKey")
-	if appKey == "" {
-		log.E("appKey missed")
+	appkey := r.Form.Get("appkey")
+	if appkey == "" {
+		log.E("appkey missed")
 		writeObj(w, http.StatusBadRequest, "")
 		return
 	}
-	log.I("Receive appKey: ", appKey)
+	log.I("Receive appKey: ", appkey)
 
-	usrname := r.Form.Get("usrname")
-	if usrname == "" {
-		log.E("usrname missed")
+	username := r.Form.Get("username")
+	if username == "" {
+		log.E("username missed")
 		writeObj(w, http.StatusBadRequest, "")
 		return
 	}
-	log.I("Receive usrname: ", usrname)
+	log.I("Receive username: ", username)
 
-	passwd := r.Form.Get("passwd")
-	if passwd == "" {
-		log.E("passwd missed")
+	password := r.Form.Get("password")
+	if password == "" {
+		log.E("password missed")
 		writeObj(w, http.StatusBadRequest, "")
 		return
 	}
 
-	ak, e := strconv.Atoi(appKey)
+	ak, e := strconv.Atoi(appkey)
 	if e != nil {
-		log.E("appKey is not number: ", appKey)
+		log.E("appKey is not number: ", appkey)
 		writeObj(w, http.StatusBadRequest, "")
 		return
 	}
 
-	if !dao.ValidateUsr(ak, usrname, passwd) {
-		log.E("Validate failed for user: ", usrname)
+	if !dao.ValidateUsr(ak, username, password) {
+		log.E("Validate failed for user: ", username)
 		writeObj(w, http.StatusUnauthorized, "")
 		return
 	}
@@ -68,13 +68,13 @@ func token(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 // ------------------------------------------------------------------------------
 func validate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	log.H("/validate  -------------------------------------------------")
-	appKey := r.Header.Get("appKey")
-	if appKey == "" {
-		log.E("appKey missed")
+	appkey := r.Header.Get("appkey")
+	if appkey == "" {
+		log.E("appkey missed")
 		writeObj(w, http.StatusBadRequest, false)
 		return
 	}
-	log.I("Receive appKey: ", appKey)
+	log.I("Receive appkey: ", appkey)
 
 	token := r.Header.Get("token")
 	if token == "" {
@@ -84,20 +84,20 @@ func validate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 	log.I("Receive token: ", token)
 
-	appName := r.Header.Get("appName")
-	if appName == "" {
-		log.E("appName missed")
+	appname := r.Header.Get("appname")
+	if appname == "" {
+		log.E("appname missed")
 		writeObj(w, http.StatusBadRequest, false)
 		return
 	}
-	log.I("Receive appName: ", appName)
+	log.I("Receive appname: ", appname)
 
-	key, e := strconv.Atoi(appKey)
+	key, e := strconv.Atoi(appkey)
 	if e != nil {
-		log.E("appKey is not number: ", appKey)
+		log.E("appkey is not number: ", appkey)
 		writeObj(w, http.StatusBadRequest, "")
 	}
-	result := checkToken(key, token, appName)
+	result := checkToken(key, token, appname)
 	log.I("Check result: ", result)
 	writeObj(w, http.StatusOK, result)
 }
@@ -114,12 +114,12 @@ func writeObj(w http.ResponseWriter, status int, obj interface{}) {
 	fmt.Fprintf(w, *(*string)(unsafe.Pointer(&bytes)))
 }
 
-func checkToken(appKey int, token, appName string) bool {
+func checkToken(appkey int, token, appname string) bool {
 	key := tokenMap[token]
 	if key == 0 {
 		return false
 	}
 	// TODO
-	// doa.GetAppName(appKey)
+	// doa.Getappname(appkey)
 	return true
 }
