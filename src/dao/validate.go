@@ -37,7 +37,7 @@ func ValidateUsr(appkey int, username, password string) bool {
 	json.ToObj(body, &result)
 	log.H(result)
 
-	return true
+	return result
 }
 
 // QueryApp is used to get application name
